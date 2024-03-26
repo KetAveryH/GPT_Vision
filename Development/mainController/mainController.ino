@@ -41,6 +41,12 @@ const String gpt_prompt = "Please provide a description of this image suitable f
 // const char* gpt_token = "";
 //
 
+// Defines our menuIndex as an external variable, managed in esp.manageMenu(..)
+int menuValue = 0;
+int* menuIndex = &menuValue;
+
+int max_tokens = 75;
+
 int request_count = 0;
 
 WifiAccess wifiAccess(ssid, password); // Initialize WifiAccess object named "wifi"
@@ -54,6 +60,10 @@ void setup() {
     // Serial port for debugging purposes
     Serial.begin(115200); 
     
+
+    // Turn-off the 'brownout detector'
+    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); // Might help overcome early shutoff due to power fluctuations
+
     Serial.println(ssid);
     delay(1000);
     wifiAccess.connect();
@@ -78,26 +88,52 @@ void setup() {
         return;
     }
 
-    // Turn-off the 'brownout detector'
-    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); // Might help overcome early shutoff due to power fluctuations
+    
+
+    
+
+    // int percentage = device.readPercentage(); 
+    // device.playBatterySound(percentage);
 }
 
 
 
 void loop() {
-    
-      if (touchRead(T14)>35000) {
+
+      int percentage = device.readPercentage(); 
+      device.playBatterySound(percentage);
+      
+      int menuSelected = 0;
+      menuSelected = device.menuManager(menuIndex);
+      Serial.println(menuSelected);
+
+      if (menuSelected == 1) { // short description
+        max_tokens = 75;
+      } else if (menuSelected == 2) { // long descriptions
+        max_tokens = 150;
+      } else if (menuSelected == 3) { // volume
+        Serial.println("Volume feature not yet implemented");
+      } else if (menuSelected == 4) { // battery level
+        int percentage = device.readPercentage(); 
+        device.playBatterySound(percentage);
+      } else {
+        Serial.println("Outside of menu range Error");
+      }
+
+
+      if (menuSelected == 1 || menuSelected == 2) {
+
         int percentage = device.readPercentage(); 
         device.playBatterySound(percentage);
 
-        Serial.println(wifiAccess.isConnected()); 
+        Serial.println(wifiAccess.isConnected());   // Check if connected to wifi
         if (wifiAccess.isConnected()) {
         } else {
         //   blinkNtimes(4, 1000); // If WiFi Not connected blink 4 times, 1 second long beeps.
         }
 
         // Play sound 
-        String image_base64 = camera.capture_base64();
+        String image_base64 = camera.capture_base64(); // Take Image
         // Serial.print(image_base64);
         if(image_base64.length() == 0) {
         Serial.println("Failed to capture or encode photo.");
@@ -107,7 +143,7 @@ void loop() {
         Serial.println(image_base64);
         
         
-        String gpt_response = gptInterface.getImgResponse(gpt_prompt, image_base64);
+        String gpt_response = gptInterface.getImgResponse(gpt_prompt, image_base64, max_tokens); // Get GPT Text Response
         
         request_count = 0;
         // device.setBeep(1);
@@ -117,9 +153,10 @@ void loop() {
 
         
         // gptInterface.GPT_Text_Speech_To_File(gpt_response);
-        gptInterface.GoogleTTS(gpt_response, "en");
+        gptInterface.GoogleTTS(gpt_response, "en"); // Convert text to audio, Play Audio
     }
 
+    delay(20);
     
 }
 

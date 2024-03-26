@@ -2,7 +2,8 @@
     "files.associations": {
         "initializer_list": "cpp",
         "vector": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "cstdint": "cpp"
     },
     "idf.portWin": "COM7",
     "idf.adapterTargetName": "esp32s3",

@@ -2,7 +2,6 @@
 #include "GPTInterface.h"
 #include <HTTPClient.h>
 #include "AudioESP.h"
-#include "Esp32.h"
 
 #define LED1 2
 
@@ -28,7 +27,7 @@ GPTInterface::GPTInterface(const char* gpt_token) : _gpt_token(gpt_token) {}
  * @param Inputs a gpt_prompt + base64 image
  * @return returns payload in JSON format.
 */
-String GPTInterface::JSON_Img_Payload(const String& gpt_prompt, const String& base64_image, int img_len) {
+String GPTInterface::JSON_Img_Payload(const String& gpt_prompt, const String& base64_image, int img_len, int max_tokens) {
     DynamicJsonDocument doc(2000 + img_len); // Adjust the size to suit your needs
     // TODO: Create a function that dynamically sets doc parameter based on image size.
 
@@ -139,11 +138,11 @@ String GPTInterface::extractTextResponse(DynamicJsonDocument& doc) {
  * @param Inputs  a gpt_prompt and a base_64 encoded image 
  * @return String, GPT API image description
 */
-String GPTInterface::getImgResponse(const String& gpt_prompt, const String& base64_image) {
+String GPTInterface::getImgResponse(const String& gpt_prompt, const String& base64_image, int max_tokens) {
     String payload;
     int image_len = base64_image.length();
 
-    payload = JSON_Img_Payload(gpt_prompt, base64_image, image_len); // puts gpt_prompt and base64_image into proper JSON format
+    payload = JSON_Img_Payload(gpt_prompt, base64_image, image_len, max_tokens); // puts gpt_prompt and base64_image into proper JSON format
     String response = GPT_img_request(payload, _gpt_token);
     
     if (response == "Error on response") {

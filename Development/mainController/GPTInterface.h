@@ -6,12 +6,13 @@
 #include <SPIFFS.h>
 #include <FS.h>
 #include <ArduinoJson.h>
+#include "Esp32.h"
 
 
 class GPTInterface {
 public:
     GPTInterface(const char* gpt_token); // Constructor
-    String getImgResponse(const String& gpt_prompt, const String& base64_image); // Method to get response from GPT
+    String getImgResponse(const String& gpt_prompt, const String& base64_image, int max_tokens); // Method to get response from GPT
     void GPT_Text_Speech_To_File(const String& gpt_response);
     void GoogleTTS(String text, String lang);
     void playTextSegments(String text, String lang);
@@ -27,7 +28,7 @@ private:
     String JSON_Text_Speech(const String& gpt_prompt); // TTS helper
 
     String extractTextResponse(DynamicJsonDocument& doc); // GPT image + prompt helpers
-    String JSON_Img_Payload(const String& gpt_prompt, const String& base64_image, int img_len);
+    String JSON_Img_Payload(const String& gpt_prompt, const String& base64_image, int img_len, int max_tokens);
     String GPT_img_request(const String& payload, const char* gpt_token);
 };
 
