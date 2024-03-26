@@ -96,7 +96,7 @@ uint16_t Esp32::read16(uint8_t reg) {
 void Esp32::playBatterySound(int percentage) {
   int roundedPercentage = nearestMultipleOfFive(percentage);
   String filename = "Battery " + String(roundedPercentage) + " .wav";
-  filename = "Volume.wav";
+//   filename = "Volume.wav"; // for testing
   playWAVFile(filename);
 }
 
@@ -105,7 +105,7 @@ int Esp32::menuAudioManager(int menuIndex){
     String filename = "";
     if (menuIndex == 1) {
         filename = "ShortDescription.wav";
-        playWAVFile(filename);
+        playWAVFile(filename);  // Just testing if the type is an issue
       } else if (menuIndex == 2) {
         playWAVFile("LongDescription.wav");
       } else if (menuIndex == 3) {
@@ -131,13 +131,13 @@ int Esp32::menuManager(int* menuIndex){
         // Back Button Pressed
         if (touchRead(T3)>TOUCHTHRESHOLD) {
             Serial.println("We are here");
-            // if (*menuIndex >= 3) {
-            //     *menuIndex = 1;
-            // }
+            if (*menuIndex >= 3) {
+                *menuIndex = 1;
+            }
             
-            // (*menuIndex)++;
+            (*menuIndex)++;
             delay(10);
-            menuAudioManager(1);
+            menuAudioManager(*menuIndex);
         }
         delay(10);
     }
